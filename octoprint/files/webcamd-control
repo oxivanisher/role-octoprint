@@ -1,0 +1,2 @@
+pi ALL=NOPASSWD: /bin/systemctl start webcamd.service
+pi ALL=NOPASSWD: /bin/systemctl stop webcamd.service

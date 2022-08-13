@@ -1,0 +1,25 @@
+#!/bin/bash
+# based on timelapse-sync.sh drom timelapse role
+
+# setting variables
+BASE_DIR="/home/pi/.octoprint/timelapse/"
+LOGFILE="/tmp/octoprint-timelapse-sync.log"
+DATE=$(date +"%Y-%m-%d")
+TIME=$(date +"%H%M%S")
+LOCKFILE="/tmp/octoprint-timelapse-sync.lock"
+echo "run date: $DATE $TIME" > $LOGFILE
+
+if ( set -o noclobber; echo "$$" > "$LOCKFILE") 2> /dev/null;
+then
+    # ensure the lockfile gets removed on exit
+    trap 'rm -f "$LOCKFILE"; exit $?' INT TERM EXIT
+
+    # copy and if successfull remove the file
+    RSYNC_PASSWORD="{{ oxiscripts.rsync.password }}" rsync --exclude=".*.mp?" --remove-source-files --ignore-missing-args -avh --log-file=$LOGFILE $BASE_DIR/*.mp? {{ oxiscripts.rsync.user }}@{{ oxiscripts.rsync.server }}::timelapse/$HOSTNAME/
+
+    # remote the lockfile
+    rm -f "$LOCKFILE"
+
+    # remove our trap
+    trap - INT TERM EXIT
+fi

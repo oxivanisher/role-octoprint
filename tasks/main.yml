@@ -7,7 +7,7 @@
     state: mounted
     src: /dev/mmcblk0p1
     fstype: vfat
-  changed_when: False
+  changed_when: false
 
 - name: enable camera_usb_options setting in octopi.txt
   ansible.builtin.lineinfile:
@@ -38,7 +38,7 @@
 - name: disable webcamd to only show webcam while printing
   ansible.builtin.service:
     name: webcamd
-    enabled: no
+    enabled: false
 
 - name: deploy sudo permission file for webcamd control
   ansible.builtin.copy:

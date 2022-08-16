@@ -56,4 +56,3 @@ galaxy_info:
 
 dependencies:
   - { role: oxiscripts }
-

@@ -1,4 +1,7 @@
 ---
+- name: Populate service facts
+  ansible.builtin.service_facts:
+
 # ensure mounted boot
 - name: Mount boot
   ansible.posix.mount:
@@ -7,13 +10,16 @@
     src: /dev/mmcblk0p1
     fstype: vfat
   changed_when: false
+  when: '"webcamd.service" in ansible_facts.services'
 
 - name: Enable camera_usb_options setting in octopi.txt
   ansible.builtin.lineinfile:
     path: /boot/octopi.txt
     regexp: "^camera_usb_options="
     line: 'camera_usb_options="{{ octoprint_camera_usb_options }}"'
-  when: octoprint_camera_usb_options is defined
+  when:
+    - octoprint_camera_usb_options is defined
+    - '"webcamd.service" in ansible_facts.services'
 
 - name: Configure octoprint backup
   ansible.builtin.lineinfile:
@@ -33,9 +39,6 @@
 #   ansible.builtin.package:
 #     name: libav-tools
 #     state: present
-
-- name: Populate service facts
-  ansible.builtin.service_facts:
 
 - name: Disable webcamd to only show webcam while printing
   ansible.builtin.service:

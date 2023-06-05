@@ -41,7 +41,7 @@
   ansible.builtin.service:
     name: webcamd.service
     enabled: false
-  when: "webcamd.service" in ansible_facts.services
+  when: '"webcamd.service" in ansible_facts.services'
 
 - name: Deploy sudo permission file for webcamd control
   ansible.builtin.copy:
@@ -50,13 +50,13 @@
     owner: root
     group: root
     mode: "0644"
-  when: "webcamd.service" in ansible_facts.services
+  when: '"webcamd.service" in ansible_facts.services'
 
 - name: Disable camera-streamer to only show webcam while printing
   ansible.builtin.service:
     name: camera-streamer.service
     enabled: false
-  when: "camera-streamer.service" in ansible_facts.services
+  when: '"camera-streamer.service" in ansible_facts.services'
 
 - name: Deploy sudo permission file for webcamd control
   ansible.builtin.copy:
@@ -65,7 +65,7 @@
     owner: root
     group: root
     mode: "0644"
-  when: "camera-streamer.service" in ansible_facts.services
+  when: '"camera-streamer.service" in ansible_facts.services'
 
 - name: Ensure path for scripts (/opt/octoprint-timelapse)
   ansible.builtin.file:

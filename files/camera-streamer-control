@@ -1,0 +1,2 @@
+pi ALL=NOPASSWD: /bin/systemctl start camera-streamer.service
+pi ALL=NOPASSWD: /bin/systemctl stop camera-streamer.service

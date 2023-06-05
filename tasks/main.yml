@@ -1,7 +1,6 @@
 ---
-
 # ensure mounted boot
-- name: mount boot
+- name: Mount boot
   ansible.posix.mount:
     path: /boot
     state: mounted
@@ -9,20 +8,20 @@
     fstype: vfat
   changed_when: false
 
-- name: enable camera_usb_options setting in octopi.txt
+- name: Enable camera_usb_options setting in octopi.txt
   ansible.builtin.lineinfile:
     path: /boot/octopi.txt
-    regexp: '^camera_usb_options='
+    regexp: "^camera_usb_options="
     line: 'camera_usb_options="{{ octoprint_camera_usb_options }}"'
   when: octoprint_camera_usb_options is defined
 
-- name: configure octoprint backup
+- name: Configure octoprint backup
   ansible.builtin.lineinfile:
     dest: /etc/oxiscripts/jobs/backup-documents.sh
-    regexp: '/home/pi/.octoprint'
+    regexp: "/home/pi/.octoprint"
     line: 'EXCLUDED_DIR="/home/pi/.octoprint/timelapse/ /home/pi/.octoprint/timelapse_finished/" rdiffbackup /home/pi/.octoprint octoprint 3M'
 
-- name: enable documents backup
+- name: Enable documents backup
   ansible.builtin.file:
     src: /etc/oxiscripts/jobs/backup-documents.sh
     dest: /etc/cron.daily/backup-documents
@@ -35,43 +34,63 @@
 #     name: libav-tools
 #     state: present
 
-- name: disable webcamd to only show webcam while printing
-  ansible.builtin.service:
-    name: webcamd
-    enabled: false
+- name: Populate service facts
+  ansible.builtin.service_facts:
 
-- name: deploy sudo permission file for webcamd control
+- name: Disable webcamd to only show webcam while printing
+  ansible.builtin.service:
+    name: webcamd.service
+    enabled: false
+  when: ansible_facts.services["webcamd.service"].status != unknown
+
+- name: Deploy sudo permission file for webcamd control
   ansible.builtin.copy:
     src: webcamd-control
     dest: /etc/sudoers.d/webcamd-control
     owner: root
     group: root
-    mode: '0644'
+    mode: "0644"
+  when: ansible_facts.services["webcamd.service"].status != unknown
 
-- name: ensure path for scripts (/opt/octoprint-timelapse)
+- name: Disable camera-streamer to only show webcam while printing
+  ansible.builtin.service:
+    name: camera-streamer.service
+    enabled: false
+  when: ansible_facts.services["camera-streamer.service"].status != unknown
+
+- name: Deploy sudo permission file for webcamd control
+  ansible.builtin.copy:
+    src: camera-streamer-control
+    dest: /etc/sudoers.d/camera-streamer-control
+    owner: root
+    group: root
+    mode: "0644"
+  when: ansible_facts.services["camera-streamer.service"].status != unknown
+
+- name: Ensure path for scripts (/opt/octoprint-timelapse)
   ansible.builtin.file:
     path: /opt/octoprint-timelapse
     state: directory
     owner: root
     group: root
-    mode: '0750'
+    mode: "0750"
 
-- name: deploy octoprint timelapse sync script
+- name: Deploy octoprint timelapse sync script
   ansible.builtin.template:
     src: octoprint-timelapse-sync.sh.jinja2
     dest: /opt/octoprint-timelapse/octoprint-timelapse-sync.sh
     owner: root
     group: root
-    mode: '0750'
+    mode: "0750"
 
-- name: ensure timelapse upload cronjob
+- name: Ensure timelapse upload cronjob
   ansible.builtin.cron:
     name: "Sync octoprint timelapses"
     minute: "35"
     hour: "*"
     job: "perl -le 'sleep rand 150' && /opt/octoprint-timelapse/octoprint-timelapse-sync.sh >/dev/null"
 
-- name: ensure backup cronjob
+- name: Ensure backup cronjob
   ansible.builtin.cron:
     name: "Octoprint backup"
     minute: "20"
@@ -79,7 +98,7 @@
     user: "pi"
     job: "/home/pi/oprint/bin/octoprint plugins backup:backup --exclude uploads --exclude timelapse > /dev/null 2>&1"
 
-- name: ensure backup cleanup cronjob
+- name: Ensure backup cleanup cronjob
   ansible.builtin.cron:
     name: "Octoprint backup cleanup"
     minute: "20"
@@ -87,7 +106,7 @@
     user: "pi"
     job: "/usr/bin/find /home/pi/.octoprint/data/backup/ -type f -iname '*.zip' -mtime +7 -delete > /dev/null"
 
-- name: ensure avrdude for the fwupdater plugin
+- name: Ensure avrdude for the fwupdater plugin
   ansible.builtin.package:
     name: avrdude
     state: present

@@ -26,8 +26,8 @@
     dest: /etc/oxiscripts/jobs/backup-documents.sh
     regexp: "/home/pi/.octoprint"
     line: >-
-      'EXCLUDED_DIR="/home/pi/.octoprint/timelapse/ /home/pi/.octoprint/timelapse_finished/
-      /home/pi/.octoprint/logs/ /home/pi/.octoprint/generated" rdiffbackup /home/pi/.octoprint octoprint 3M'
+      EXCLUDED_DIR="/home/pi/.octoprint/timelapse/ /home/pi/.octoprint/timelapse_finished/
+      /home/pi/.octoprint/logs/ /home/pi/.octoprint/generated" rdiffbackup /home/pi/.octoprint octoprint 3M
 
 - name: Enable documents backup
   ansible.builtin.file:

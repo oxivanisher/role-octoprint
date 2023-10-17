@@ -51,4 +51,5 @@ galaxy_info:
     - octoprint
 
 dependencies:
-  - role: ansible.posix.mount
+  []
+  # - role: ansible.posix.mount

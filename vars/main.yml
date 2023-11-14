@@ -1,2 +1,3 @@
 ---
 # vars file for octoprint
+octoprint_config_dir: /boot/firmware

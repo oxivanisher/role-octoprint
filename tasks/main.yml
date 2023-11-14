@@ -3,9 +3,14 @@
   ansible.builtin.service_facts:
 
 # ensure mounted boot
+- name: Override config.txt location for Raspberry Pi OS version before bookworm
+  ansible.builtin.set_fact:
+    octoprint_config_dir: /boot
+  when: ansible_distribution_major_version | int < 12
+
 - name: Mount boot
   ansible.posix.mount:
-    path: /boot
+    path: "{{ octoprint_config_dir }}"
     state: mounted
     src: /dev/mmcblk0p1
     fstype: vfat
@@ -14,7 +19,7 @@
 
 - name: Enable camera_usb_options setting in octopi.txt
   ansible.builtin.lineinfile:
-    path: /boot/octopi.txt
+    path: "{{ octoprint_config_dir }}/config.txt"
     regexp: "^camera_usb_options="
     line: 'camera_usb_options="{{ octoprint_camera_usb_options }}"'
   when:

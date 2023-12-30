@@ -15,7 +15,7 @@ then
     trap 'rm -f "$LOCKFILE"; exit $?' INT TERM EXIT
 
     # copy and if successfull remove the file
-    RSYNC_PASSWORD="{{ timelapse_rsync_password }}" rsync --exclude=".*.mp?" --remove-source-files --ignore-missing-args -avh --log-file=$LOGFILE $BASE_DIR/*.mp? {{ timelapse_rsync_user }}@{{ timelapse_rsync_server }}::{{ timelapse_rsync_path }}/$HOSTNAME/
+    RSYNC_PASSWORD="{{ octoprint_timelapse_rsync_password }}" rsync --exclude=".*.mp?" --remove-source-files --ignore-missing-args -avh --log-file=$LOGFILE $BASE_DIR/*.mp? {{ octoprint_timelapse_rsync_user }}@{{ octoprint_timelapse_rsync_server }}::{{ octoprint_timelapse_rsync_path }}/$HOSTNAME/
 
     # remote the lockfile
     rm -f "$LOCKFILE"

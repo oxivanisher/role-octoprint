@@ -30,10 +30,10 @@ Role Variables
 
 | Name          | Comment                              | Default value |
 |---------------|--------------------------------------|---------------|
-| timelapse_rsync_server | Rsync server for timelapse sync |          |
-| timelapse_rsync_user  | Rsync user for timelapse sync |          |
-| timelapse_rsync_password | Rsync password for timelapse sync |           |
-| timelapse_rsync_path | Rsync path for timelapse sync |           |
+| octoprint_timelapse_rsync_server | Rsync server for timelapse sync |          |
+| octoprint_timelapse_rsync_user  | Rsync user for timelapse sync |          |
+| octoprint_timelapse_rsync_password | Rsync password for timelapse sync |           |
+| octoprint_timelapse_rsync_path | Rsync path for timelapse sync |           |
 
 Example Playbook
 ----------------

@@ -1,31 +1,51 @@
-Role Name
+octoprint
 =========
 
-A brief description of the role goes here.
-
-Requirements
-------------
-
-Any pre-requisites that may not be covered by Ansible itself or the role should be mentioned here. For instance, if the role uses the EC2 module, it may be a good idea to mention in this section that the boto package is required.
+Configures several things on octopi/octoprint hosts:
+* Configure Webcam (old and new system)
+* Add a [oxiscript](https://github.com/oxivanisher/role-oxiscripts) backup job for octoprint settings
+* Copy timelapse files via rsync to a target server
+* Disable webcam service by default. YOU HAVE TO MANUALLY add the following config to `/home/pi/.octoprint/config.yaml` or via the WebUi `Settings` > `Event Manager`:
+  ```yaml
+  events:
+    enabled: true
+    subscriptions:
+    - command: sudo /bin/systemctl start camera-streamer.service
+      event: PrintStarted
+      type: system
+    - command: sleep 30; sudo /bin/systemctl stop camera-streamer.service
+      event: PrintDone
+      type: system
+    - command: sleep 30; sudo /bin/systemctl stop camera-streamer.service
+      event: PrintFailed
+      type: system
+    - command: sleep 30; sudo /bin/systemctl stop camera-streamer.service
+      event: PrintCancelled
+      type: system
+  ```
+  This is for the new camera systemd, for the old one, the service is named differently. Since octoprint overrides the config file on stop, its complicated to do this via Ansible. Sorry, not really idempotent.
 
 Role Variables
 --------------
 
-A description of the settable variables for this role should go here, including any variables that are in defaults/main.yml, vars/main.yml, and any variables that can/should be set via parameters to the role. Any variables that are read from other roles and/or the global scope (ie. hostvars, group vars, etc.) should be mentioned here as well.
-
-Dependencies
-------------
-
-A list of other roles hosted on Galaxy should go here, plus any details in regards to parameters that may need to be set for other roles, or variables that are used from other roles.
+| Name          | Comment                              | Default value |
+|---------------|--------------------------------------|---------------|
+| timelapse_rsync_server | Rsync server for timelapse sync |          |
+| timelapse_rsync_user  | Rsync user for timelapse sync |          |
+| timelapse_rsync_password | Rsync password for timelapse sync |           |
+| timelapse_rsync_path | Rsync path for timelapse sync |           |
 
 Example Playbook
 ----------------
 
-Including an example of how to use your role (for instance, with variables passed in as parameters) is always nice for users too:
-
-    - hosts: servers
-      roles:
-         - { role: username.rolename, x: 42 }
+```yaml
+- name: Octoprint
+  hosts: octoprint_server
+  collections:
+    - oxivanisher.raspberry_pi
+  roles:
+    - role: oxivanisher.raspberry_pi.octoprint
+```
 
 License
 -------
@@ -35,4 +55,4 @@ BSD
 Author Information
 ------------------
 
-An optional section for the role authors to include contact information, or a website (HTML is not allowed).
+This role is part of the [oxivanisher.raspberry_pi](https://galaxy.ansible.com/ui/repo/published/oxivanisher/raspberry_pi/) collection, and the source for that is located on [github](https://github.com/oxivanisher/collection-raspberry_pi).

@@ -1,2 +1,6 @@
 ---
 # defaults file for octoprint
+timelapse_rsync_server:
+timelapse_rsync_user:
+timelapse_rsync_password:
+timelapse_rsync_path:

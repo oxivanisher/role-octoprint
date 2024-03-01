@@ -12,7 +12,7 @@
   ansible.posix.mount:
     path: "{{ octoprint_config_dir }}"
     state: mounted
-    src: /dev/mmcblk0p1
+    src: "{{ raspberry_pi_boot_dev }}"
     fstype: vfat
   changed_when: false
   when: '"webcamd.service" in ansible_facts.services'

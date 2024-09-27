@@ -3,7 +3,6 @@ octoprint
 
 Configures several things on octopi/octoprint hosts:
 * Configure Webcam (old and new system)
-* Add a [oxiscript](https://github.com/oxivanisher/role-oxiscripts) backup job for octoprint settings
 * Copy timelapse files via rsync to a target server
 * Disable webcam service by default. YOU HAVE TO MANUALLY add the following config to `/home/pi/.octoprint/config.yaml` or via the WebUi `Settings` > `Event Manager`:
   ```yaml

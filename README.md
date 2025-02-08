@@ -1,5 +1,6 @@
 octoprint
 =========
+[![Ansible Lint](https://github.com/oxivanisher/role-octoprint/actions/workflows/ansible-lint.yml/badge.svg)](https://github.com/oxivanisher/role-octoprint/actions/workflows/ansible-lint.yml)
 
 Configures several things on octopi/octoprint hosts:
 * Configure Webcam (old and new system)

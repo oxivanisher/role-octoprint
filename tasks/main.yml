@@ -55,6 +55,7 @@
     owner: root
     group: root
     mode: "0644"
+    validate: /usr/sbin/visudo -cf %s
   when: '"webcamd.service" in ansible_facts.services'
   become: true
   become_user: root
@@ -74,6 +75,7 @@
     owner: root
     group: root
     mode: "0644"
+    validate: /usr/sbin/visudo -cf %s
   when: '"camera-streamer.service" in ansible_facts.services'
   become: true
   become_user: root

@@ -4,4 +4,4 @@ octoprint_timelapse_rsync_server:
 octoprint_timelapse_rsync_user:
 octoprint_timelapse_rsync_password:
 octoprint_timelapse_rsync_path:
-raspberry_pi_boot_dev: /dev/mmcblk0p1
+octoprint_rpi_boot_dev: /dev/mmcblk0p1

@@ -33,7 +33,7 @@ Role Variables
 | octoprint_timelapse_rsync_user  | Rsync user for timelapse sync |          |
 | octoprint_timelapse_rsync_password | Rsync password for timelapse sync |           |
 | octoprint_timelapse_rsync_path | Rsync path for timelapse sync |           |
-| raspberry_pi_boot_dev | Raspberry pi boot dev (used for editing config.txt) | /dev/mmcblk0p1 |
+| octoprint_rpi_boot_dev | The boot device where the `config.txt` is located. Will be overwritten if `raspberry_pi_boot_dev` is set! | `/de`/mmcblk0p1` |
 
 Example Playbook
 ----------------

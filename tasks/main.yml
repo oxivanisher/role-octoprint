@@ -6,7 +6,7 @@
 - name: Override config.txt location for Raspberry Pi OS version before bookworm
   ansible.builtin.set_fact:
     octoprint_config_dir: /boot
-  when: ansible_distribution_major_version | int < 12
+  when: ansible_facts.distribution_major_version | int < 12
 
 - name: Override Raspberry PI boot device default since raspberry_pi_boot_dev is set
   ansible.builtin.set_fact:

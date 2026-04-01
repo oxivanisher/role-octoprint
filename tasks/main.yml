@@ -22,7 +22,6 @@
   changed_when: false
   when: '"webcamd.service" in ansible_facts.services'
   become: true
-  become_user: root
 
 - name: Enable camera_usb_options setting in octopi.txt
   ansible.builtin.lineinfile:
@@ -33,7 +32,6 @@
     - octoprint_camera_usb_options is defined
     - '"webcamd.service" in ansible_facts.services'
   become: true
-  become_user: root
 
 # - name: ensuring ffmpeg for timelapses
 #   ansible.builtin.package:
@@ -41,12 +39,11 @@
 #     state: present
 
 - name: Disable webcamd to only show webcam while printing
-  ansible.builtin.service:
+  ansible.builtin.systemd_service:
     name: webcamd.service
     enabled: false
   when: '"webcamd.service" in ansible_facts.services'
   become: true
-  become_user: root
 
 - name: Deploy sudo permission file for webcamd control
   ansible.builtin.copy:
@@ -58,15 +55,13 @@
     validate: /usr/sbin/visudo -cf %s
   when: '"webcamd.service" in ansible_facts.services'
   become: true
-  become_user: root
 
 - name: Disable camera-streamer to only show webcam while printing
-  ansible.builtin.service:
+  ansible.builtin.systemd_service:
     name: camera-streamer.service
     enabled: false
   when: '"camera-streamer.service" in ansible_facts.services'
   become: true
-  become_user: root
 
 - name: Deploy sudo permission file for webcamd control
   ansible.builtin.copy:
@@ -78,7 +73,6 @@
     validate: /usr/sbin/visudo -cf %s
   when: '"camera-streamer.service" in ansible_facts.services'
   become: true
-  become_user: root
 
 - name: Ensure path for scripts (/opt/octoprint-timelapse)
   ansible.builtin.file:
@@ -88,7 +82,6 @@
     group: root
     mode: "0750"
   become: true
-  become_user: root
 
 - name: Deploy octoprint timelapse sync script
   ansible.builtin.template:
@@ -98,7 +91,6 @@
     group: root
     mode: "0750"
   become: true
-  become_user: root
 
 - name: Ensure timelapse upload cronjob
   ansible.builtin.cron:
@@ -107,7 +99,6 @@
     hour: "*"
     job: "perl -le 'sleep rand 150' && /opt/octoprint-timelapse/octoprint-timelapse-sync.sh >/dev/null"
   become: true
-  become_user: root
 
 - name: Ensure backup cronjob
   ansible.builtin.cron:
@@ -117,7 +108,6 @@
     user: "pi"
     job: "/home/pi/oprint/bin/octoprint plugins backup:backup --exclude uploads --exclude timelapse > /dev/null 2>&1"
   become: true
-  become_user: root
 
 - name: Ensure backup cleanup cronjob
   ansible.builtin.cron:
@@ -127,11 +117,9 @@
     user: "pi"
     job: "/usr/bin/find /home/pi/.octoprint/data/backup/ -type f -iname '*.zip' -mtime +7 -delete > /dev/null"
   become: true
-  become_user: root
 
 - name: Ensure avrdude for the fwupdater plugin
   ansible.builtin.package:
     name: avrdude
     state: present
   become: true
-  become_user: root

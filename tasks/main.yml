@@ -8,19 +8,29 @@
     octoprint_config_dir: /boot
   when: ansible_facts.distribution_major_version | int < 12
 
-- name: Override Raspberry PI boot device default since raspberry_pi_boot_dev is set
-  ansible.builtin.set_fact:
-    octoprint_rpi_boot_dev: "{{ raspberry_pi_boot_dev }}"
-  when: raspberry_pi_boot_dev | default('', true) | trim != ''
+- name: Detect boot source from fstab if not already mounted
+  ansible.builtin.command:
+    cmd: findmnt --fstab --noheadings --output SOURCE {{ octoprint_config_dir }}
+  register: _octoprint_boot_fstab
+  changed_when: false
+  failed_when: false
+  check_mode: false
+  become: true
+  when:
+    - '"webcamd.service" in ansible_facts.services'
+    - ansible_facts.mounts | selectattr('mount', 'equalto', octoprint_config_dir) | list | length == 0
 
 - name: Mount boot
   ansible.posix.mount:
     path: "{{ octoprint_config_dir }}"
     state: mounted
-    src: "{{ octoprint_rpi_boot_dev }}"
+    src: "{{ _octoprint_boot_fstab.stdout | trim }}"
     fstype: vfat
+  when:
+    - '"webcamd.service" in ansible_facts.services'
+    - ansible_facts.mounts | selectattr('mount', 'equalto', octoprint_config_dir) | list | length == 0
+    - _octoprint_boot_fstab.stdout | default('') | trim != ''
   changed_when: false
-  when: '"webcamd.service" in ansible_facts.services'
   become: true
 
 - name: Enable camera_usb_options setting in octopi.txt

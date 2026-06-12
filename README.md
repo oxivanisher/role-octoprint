@@ -35,8 +35,9 @@ Role Variables
 | `octoprint_timelapse_rsync_password`      | Rsync password for timelapse sync                                                                 |               |
 | `octoprint_timelapse_rsync_path`          | Rsync module path for timelapse sync                                                              |               |
 | `octoprint_timelapse_max_silent_failures` | Number of consecutive rsync failures to tolerate before the systemd service enters a failed state | `2`           |
+| `octoprint_user`                          | OS user running OctoPrint (used to locate the timelapse directory)                                | `pi`          |
 
-The timelapse sync runs as a systemd timer (`octoprint-timelapse-sync.timer`) every hour at minute 35 with a random delay of up to 150 seconds. Failures are tracked across runs in `/var/lib/octoprint-timelapse/failure_count` (managed via `StateDirectory=`). The unit only enters a failed state after `octoprint_timelapse_max_silent_failures` consecutive failures, which tolerates transient DNS or network outages.
+The timelapse sync runs as a systemd timer (`octoprint-timelapse-sync.timer`) every hour at minute 35 with a random delay of up to 150 seconds. Failures are tracked across runs in `/var/lib/octoprint-timelapse/failure_count` (`StateDirectory=`); the lockfile lives in `/run/octoprint-timelapse/` (`RuntimeDirectory=`). The unit only enters a failed state after `octoprint_timelapse_max_silent_failures` consecutive failures, which tolerates transient DNS or network outages.
 
 Example Playbook
 ----------------

@@ -1,2 +1,8 @@
 ---
 # handlers file for octoprint
+- name: Reload systemd and restart timelapse timer
+  ansible.builtin.systemd_service:
+    name: octoprint-timelapse-sync.timer
+    state: restarted
+    daemon_reload: true
+  become: true

@@ -1,25 +1,41 @@
 #!/bin/bash
-# based on timelapse-sync.sh drom timelapse role
 
-# setting variables
 BASE_DIR="/home/pi/.octoprint/timelapse/"
-LOGFILE="/tmp/octoprint-timelapse-sync.log"
-DATE=$(date +"%Y-%m-%d")
-TIME=$(date +"%H%M%S")
 LOCKFILE="/tmp/octoprint-timelapse-sync.lock"
-echo "run date: $DATE $TIME" > $LOGFILE
+FAILURE_COUNT_FILE="${STATE_DIRECTORY}/failure_count"
+MAX_SILENT_FAILURES="{{ octoprint_timelapse_max_silent_failures }}"
 
-if ( set -o noclobber; echo "$$" > "$LOCKFILE") 2> /dev/null;
-then
-    # ensure the lockfile gets removed on exit
+if ( set -o noclobber; echo "$$" > "$LOCKFILE") 2>/dev/null; then
     trap 'rm -f "$LOCKFILE"; exit $?' INT TERM EXIT
 
-    # copy and if successfull remove the file
-    RSYNC_PASSWORD="{{ octoprint_timelapse_rsync_password }}" rsync --exclude=".*.mp?" --remove-source-files --ignore-missing-args -avh --log-file=$LOGFILE $BASE_DIR/*.mp? {{ octoprint_timelapse_rsync_user }}@{{ octoprint_timelapse_rsync_server }}::{{ octoprint_timelapse_rsync_path }}/$HOSTNAME/
+    output=$(RSYNC_PASSWORD="{{ octoprint_timelapse_rsync_password }}" \
+        rsync --exclude=".*.mp?" --remove-source-files --ignore-missing-args \
+        -avh \
+        "$BASE_DIR"/*.mp? \
+        {{ octoprint_timelapse_rsync_user }}@{{ octoprint_timelapse_rsync_server }}::{{ octoprint_timelapse_rsync_path }}/$HOSTNAME/ 2>&1)
+    RSYNC_EXIT=$?
 
-    # remote the lockfile
+    if [ "$RSYNC_EXIT" -eq 0 ]; then
+        echo 0 > "$FAILURE_COUNT_FILE"
+        rm -f "$LOCKFILE"
+        trap - INT TERM EXIT
+        exit 0
+    fi
+
+    current=$(cat "$FAILURE_COUNT_FILE" 2>/dev/null || echo 0)
+    new=$((current + 1))
+    echo "$new" > "$FAILURE_COUNT_FILE"
+
+    if [ "$new" -gt "$MAX_SILENT_FAILURES" ]; then
+        echo "rsync failed $new consecutive times (exit code: $RSYNC_EXIT):" >&2
+        echo "$output" >&2
+        rm -f "$LOCKFILE"
+        trap - INT TERM EXIT
+        exit 1
+    else
+        echo "rsync failed (exit code: $RSYNC_EXIT), transient failure $new/$MAX_SILENT_FAILURES — suppressing notification" >&2
+    fi
+
     rm -f "$LOCKFILE"
-
-    # remove our trap
     trap - INT TERM EXIT
 fi

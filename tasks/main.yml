@@ -84,30 +84,53 @@
   when: '"camera-streamer.service" in ansible_facts.services'
   become: true
 
-- name: Ensure path for scripts (/opt/octoprint-timelapse)
+- name: Remove legacy timelapse sync script location
   ansible.builtin.file:
     path: /opt/octoprint-timelapse
-    state: directory
-    owner: root
-    group: root
-    mode: "0750"
+    state: absent
+  become: true
+
+- name: Remove legacy timelapse upload cronjob
+  ansible.builtin.cron:
+    name: "Sync octoprint timelapses"
+    state: absent
   become: true
 
 - name: Deploy octoprint timelapse sync script
   ansible.builtin.template:
     src: octoprint-timelapse-sync.sh.jinja2
-    dest: /opt/octoprint-timelapse/octoprint-timelapse-sync.sh
+    dest: /usr/local/bin/octoprint-timelapse-sync
     owner: root
     group: root
     mode: "0750"
   become: true
 
-- name: Ensure timelapse upload cronjob
-  ansible.builtin.cron:
-    name: "Sync octoprint timelapses"
-    minute: "35"
-    hour: "*"
-    job: "perl -le 'sleep rand 150' && /opt/octoprint-timelapse/octoprint-timelapse-sync.sh >/dev/null"
+- name: Deploy octoprint timelapse sync systemd service
+  ansible.builtin.template:
+    src: octoprint-timelapse-sync.service.j2
+    dest: /etc/systemd/system/octoprint-timelapse-sync.service
+    owner: root
+    group: root
+    mode: "0644"
+  become: true
+  notify: Reload systemd and restart timelapse timer
+
+- name: Deploy octoprint timelapse sync systemd timer
+  ansible.builtin.template:
+    src: octoprint-timelapse-sync.timer.j2
+    dest: /etc/systemd/system/octoprint-timelapse-sync.timer
+    owner: root
+    group: root
+    mode: "0644"
+  become: true
+  notify: Reload systemd and restart timelapse timer
+
+- name: Enable and start octoprint timelapse sync timer
+  ansible.builtin.systemd_service:
+    name: octoprint-timelapse-sync.timer
+    enabled: true
+    state: started
+    daemon_reload: true
   become: true
 
 - name: Ensure backup cronjob

@@ -1,0 +1,10 @@
+[Unit]
+Description=OctoPrint Timelapse Sync Timer
+
+[Timer]
+OnCalendar=*:35
+RandomizedDelaySec=150
+Persistent=true
+
+[Install]
+WantedBy=timers.target

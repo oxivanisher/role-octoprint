@@ -1,6 +1,6 @@
 #!/bin/bash
 
-BASE_DIR="/home/{{ octoprint_user }}/.octoprint/timelapse/"
+BASE_DIR="{{ octoprint_user_home }}/.octoprint/timelapse/"
 LOCKFILE="${RUNTIME_DIRECTORY}/octoprint-timelapse-sync.lock"
 FAILURE_COUNT_FILE="${STATE_DIRECTORY}/failure_count"
 MAX_SILENT_FAILURES="{{ octoprint_timelapse_max_silent_failures }}"

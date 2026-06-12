@@ -1,4 +1,13 @@
 ---
+- name: Gather octoprint user infos
+  ansible.builtin.getent:
+    database: passwd
+    key: "{{ octoprint_user }}"
+
+- name: Lookup home for octoprint user
+  ansible.builtin.set_fact:
+    octoprint_user_home: "{{ ansible_facts.getent_passwd[octoprint_user][4] }}"
+
 - name: Populate service facts
   ansible.builtin.service_facts:
 
@@ -138,8 +147,8 @@
     name: "Octoprint backup"
     minute: "20"
     hour: "00"
-    user: "pi"
-    job: "/home/pi/oprint/bin/octoprint plugins backup:backup --exclude uploads --exclude timelapse > /dev/null 2>&1"
+    user: "{{ octoprint_user }}"
+    job: "{{ octoprint_user_home }}/oprint/bin/octoprint plugins backup:backup --exclude uploads --exclude timelapse > /dev/null 2>&1"
   become: true
 
 - name: Ensure backup cleanup cronjob
@@ -147,8 +156,8 @@
     name: "Octoprint backup cleanup"
     minute: "20"
     hour: "01"
-    user: "pi"
-    job: "/usr/bin/find /home/pi/.octoprint/data/backup/ -type f -iname '*.zip' -mtime +7 -delete > /dev/null"
+    user: "{{ octoprint_user }}"
+    job: "/usr/bin/find {{ octoprint_user_home }}/.octoprint/data/backup/ -type f -iname '*.zip' -mtime +7 -delete > /dev/null"
   become: true
 
 - name: Ensure avrdude for the fwupdater plugin

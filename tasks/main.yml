@@ -27,6 +27,7 @@
   become: true
   when:
     - '"webcamd.service" in ansible_facts.services'
+    - ansible_facts.services['webcamd.service'].status != 'not-found'
     - ansible_facts.mounts | selectattr('mount', 'equalto', octoprint_config_dir) | list | length == 0
 
 - name: Mount boot
@@ -37,6 +38,7 @@
     fstype: vfat
   when:
     - '"webcamd.service" in ansible_facts.services'
+    - ansible_facts.services['webcamd.service'].status != 'not-found'
     - ansible_facts.mounts | selectattr('mount', 'equalto', octoprint_config_dir) | list | length == 0
     - _octoprint_boot_fstab.stdout | default('') | trim != ''
   changed_when: false
@@ -50,6 +52,7 @@
   when:
     - octoprint_camera_usb_options is defined
     - '"webcamd.service" in ansible_facts.services'
+    - ansible_facts.services['webcamd.service'].status != 'not-found'
   become: true
 
 # - name: ensuring ffmpeg for timelapses
@@ -61,7 +64,9 @@
   ansible.builtin.systemd_service:
     name: webcamd.service
     enabled: false
-  when: '"webcamd.service" in ansible_facts.services'
+  when:
+    - '"webcamd.service" in ansible_facts.services'
+    - ansible_facts.services['webcamd.service'].status != 'not-found'
   become: true
 
 - name: Deploy sudo permission file for webcamd control
@@ -72,14 +77,18 @@
     group: root
     mode: "0644"
     validate: /usr/sbin/visudo -cf %s
-  when: '"webcamd.service" in ansible_facts.services'
+  when:
+    - '"webcamd.service" in ansible_facts.services'
+    - ansible_facts.services['webcamd.service'].status != 'not-found'
   become: true
 
 - name: Disable camera-streamer to only show webcam while printing
   ansible.builtin.systemd_service:
     name: camera-streamer.service
     enabled: false
-  when: '"camera-streamer.service" in ansible_facts.services'
+  when:
+    - '"camera-streamer.service" in ansible_facts.services'
+    - ansible_facts.services['camera-streamer.service'].status != 'not-found'
   become: true
 
 - name: Deploy sudo permission file for webcamd control
@@ -90,7 +99,9 @@
     group: root
     mode: "0644"
     validate: /usr/sbin/visudo -cf %s
-  when: '"camera-streamer.service" in ansible_facts.services'
+  when:
+    - '"camera-streamer.service" in ansible_facts.services'
+    - ansible_facts.services['camera-streamer.service'].status != 'not-found'
   become: true
 
 - name: Remove legacy timelapse sync script location
